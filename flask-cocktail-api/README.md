@@ -7,7 +7,14 @@ it's not really designed to stand alone.
 
 ## Run the code
 
-First, install the code locally, with your virtualenv activated:
+First create and activate your virtualenv - with the `venv` package on OSX or Linux, this will be:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+With your virtualenv active, install the project locally:
 
 ```bash
 pip install -e .
