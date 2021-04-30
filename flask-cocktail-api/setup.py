@@ -25,7 +25,7 @@ setup(
         "fastapi == 0.63.0",
         "Flask == 1.1.2",
         "Flask-PyMongo==2.3.0",
-        "pymongo == 3.11.3",
+        "pymongo[srv] == 3.11.3",
         "pydantic == 1.8.1",
     ],
     extras_require=EXTRAS_REQUIRE,

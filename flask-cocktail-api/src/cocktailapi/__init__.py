@@ -14,27 +14,40 @@ from pymongo.errors import DuplicateKeyError
 
 from .model import Cocktail
 
-
+# Configure Flask & Flask-PyMongo:
 app = Flask(__name__)
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
-
 pymongo = PyMongo(app)
+
+# Get a reference to the recipes collection.
+# Uses a type-hint, so that your IDE knows what's happening!
 recipes: Collection = pymongo.db.recipes
 
 
 @app.errorhandler(404)
 def resource_not_found(e):
+    """
+    An error-handler to ensure that 404 errors are returned as JSON.
+    """
     return jsonify(error=str(e)), 404
 
 
 @app.errorhandler(DuplicateKeyError)
 def resource_not_found(e):
+    """
+    An error-handler to ensure that MongoDB duplicate key errors are returned as JSON.
+    """
     return jsonify(error=f"Duplicate key error."), 400
 
 
 @app.route("/cocktails/")
 def list_cocktails():
-    recipes = pymongo.db.get_collection("recipes")
+    """
+    GET a list of cocktail recipes.
+
+    The results are paginated using the `page` parameter.
+    """
+
     page = int(request.args.get("page", 1))
     per_page = 10
     cursor = recipes.find().sort("name").skip(per_page * (page - 1)).limit(per_page)
@@ -66,8 +79,6 @@ def list_cocktails():
 
 @app.route("/cocktails/", methods=["POST"])
 def new_cocktail():
-    recipes = pymongo.db.recipes
-
     raw_cocktail = request.get_json()
     raw_cocktail["date_added"] = datetime.utcnow()
 
@@ -90,8 +101,6 @@ def get_cocktail(slug):
 def update_cocktail(slug):
     cocktail = Cocktail(**request.get_json())
     cocktail.date_updated = datetime.utcnow()
-
-    recipes = pymongo.db.get_collection("recipes")
     update_result = recipes.update_one(
         {"slug": slug},
         {"$set": cocktail.to_bson()},
