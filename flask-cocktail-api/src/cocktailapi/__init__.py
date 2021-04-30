@@ -5,7 +5,7 @@ cocktailapi - A small API for managing cocktail recipes.
 from datetime import datetime
 import os
 
-from pymongo.collection import Collection
+from pymongo.collection import Collection, ReturnDocument
 
 import flask
 from flask import Flask, request, url_for, jsonify
@@ -13,6 +13,7 @@ from flask_pymongo import PyMongo
 from pymongo.errors import DuplicateKeyError
 
 from .model import Cocktail
+from .objectid import PydanticObjectId
 
 # Configure Flask & Flask-PyMongo:
 app = Flask(__name__)
@@ -90,11 +91,10 @@ def new_cocktail():
 
     cocktail = Cocktail(**raw_cocktail)
     insert_result = recipes.insert_one(cocktail.to_bson())
-    cocktail_doc = recipes.find_one({"_id": insert_result.inserted_id})
-    if cocktail_doc is None:
-        flask.abort(500, "The inserted cocktail went away.")
+    cocktail.id = PydanticObjectId(str(insert_result.inserted_id))
+    print(cocktail)
 
-    return Cocktail(**cocktail_doc).to_json()
+    return cocktail.to_json()
 
 
 @app.route("/cocktails/<string:slug>", methods=["GET"])
@@ -107,16 +107,13 @@ def get_cocktail(slug):
 def update_cocktail(slug):
     cocktail = Cocktail(**request.get_json())
     cocktail.date_updated = datetime.utcnow()
-    update_result = recipes.update_one(
+    updated_doc = recipes.find_one_and_update(
         {"slug": slug},
         {"$set": cocktail.to_bson()},
+        return_document=ReturnDocument.AFTER,
     )
-
-    if update_result.matched_count == 1:
-        cocktail_doc = recipes.find_one({"slug": cocktail.slug})
-        if cocktail_doc is None:
-            flask.abort(500, "The updated cocktail went away.")
-        return Cocktail(**cocktail_doc).to_json()
+    if updated_doc:
+        return Cocktail(**updated_doc).to_json()
     else:
         flask.abort(404, "Cocktail not found")
 
