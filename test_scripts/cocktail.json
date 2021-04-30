@@ -1,0 +1,19 @@
+{
+    "slug": "whiskey-old-fashioned",
+    "name": "Whiskey Old-Fashioned",
+    "ingredients": [
+        {
+            "name": "Whiskey"
+        },
+        {
+            "name": "Sugar Syrup"
+        },
+        {
+            "name": "Angostura Bitters"
+        }
+    ],
+    "instructions": [
+        "Stir the ingredients over ice.",
+        "Express the orange peel over the drink."
+    ]
+}

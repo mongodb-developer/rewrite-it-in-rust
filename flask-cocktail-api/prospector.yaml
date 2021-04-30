@@ -1,0 +1,6 @@
+%YAML 1.2
+---
+ignore-paths:
+ - venv
+ - dist
+ - build
