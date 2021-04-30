@@ -49,7 +49,11 @@ def list_cocktails():
     """
 
     page = int(request.args.get("page", 1))
-    per_page = 10
+    per_page = 10  # A const value.
+
+    # For pagination, it's necessary to sort by name,
+    # then skip the number of docs that earlier pages would have displayed,
+    # and then to limit to the fixed page size, ``per_page``.
     cursor = recipes.find().sort("name").skip(per_page * (page - 1)).limit(per_page)
 
     cocktail_count = recipes.count_documents({})
@@ -62,14 +66,16 @@ def list_cocktails():
             )
         },
     }
+    # Add a 'prev' link if it's not on the first page:
     if page > 1:
-        links["prev"] = (
-            {"href": url_for(".list_cocktails", page=page - 1, _external=True)},
-        )
+        links["prev"] = {
+            "href": url_for(".list_cocktails", page=page - 1, _external=True)
+        }
+    # Add a 'next' link if it's not on the last page:
     if page - 1 < cocktail_count // per_page:
-        links["next"] = (
-            {"href": url_for(".list_cocktails", page=page + 1, _external=True)},
-        )
+        links["next"] = {
+            "href": url_for(".list_cocktails", page=page + 1, _external=True)
+        }
 
     return {
         "recipes": [Cocktail(**doc).to_json() for doc in cursor],
