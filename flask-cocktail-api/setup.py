@@ -23,10 +23,11 @@ setup(
     package_dir={"": "src"},
     install_requires=[
         "fastapi == 0.63.0",
-        "Flask == 1.1.2",
+        "Flask == 1.1.4",
         "Flask-PyMongo==2.3.0",
         "pymongo[srv] == 3.11.3",
         "pydantic == 1.8.1",
+        "MarkupSafe == 2.0.1"
     ],
     extras_require=EXTRAS_REQUIRE,
 )
